@@ -1,5 +1,5 @@
 ---
-name: Update deployments-k8s repository
+name: Update deployments-proxy repository
 on:
   push:
     branches:
@@ -10,7 +10,7 @@ on:
     workflows:
       - 'automerge'
 jobs:
-  update-deployments-k8s:
+  update-deployments-proxy:
     if: ${{ github.repository != 'networkservicemesh/cmd-template' && (github.event.workflow_run.conclusion == 'success' && github.actor == 'nsmbot' || github.event_name == 'push') }}
     uses: networkservicemesh/.github/.github/workflows/update-deployments.yaml@main
     secrets:

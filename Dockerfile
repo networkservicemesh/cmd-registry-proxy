@@ -1,4 +1,4 @@
-FROM golang:1.20.5-buster as go
+FROM golang:1.18.2-buster as go
 ENV GO111MODULE=on
 ENV CGO_ENABLED=0
 ENV GOBIN=/bin
@@ -8,8 +8,11 @@ RUN tar xzvf spire-1.2.2-linux-x86_64-glibc.tar.gz -C /bin --strip=2 spire-1.2.2
 
 FROM go as build
 WORKDIR /build
+COPY go.mod go.sum ./
+COPY ./pkg/internal/imports ./pkg/internal/imports
+RUN go build ./pkg/internal/imports
 COPY . .
-RUN go build -o /bin/app .
+RUN go build -o /bin/cmd-registry-proxy .
 
 FROM build as test
 CMD go test -test.v ./...
@@ -18,5 +21,5 @@ FROM test as debug
 CMD dlv -l :40000 --headless=true --api-version=2 test -test.v ./...
 
 FROM alpine as runtime
-COPY --from=build /bin/app /bin/app
-CMD /bin/app
+COPY --from=build /bin/cmd-registry-proxy /bin/cmd-registry-proxy
+ENTRYPOINT ["/bin/cmd-registry-proxy"]
